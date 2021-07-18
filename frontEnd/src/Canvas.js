@@ -92,6 +92,8 @@ const Canvas = ({
         });
       }
     });
+    const canvasImage = canvasRef.current.toDataURL();
+    socket.emit("drawing", canvasImage);
   }, [elements]);
 
   const handleMouseMove = (e) => {

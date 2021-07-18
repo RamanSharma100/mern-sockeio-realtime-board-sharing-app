@@ -1,24 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import io from "socket.io-client";
+import ClientRoom from "./ClientRoom";
 import JoinCreateRoom from "./JoinCreateRoom";
 import Room from "./Room";
+import Sidebar from "./Sidebar";
 
 import "./style.css";
+
+const server = "http://localhost:5000";
+const connectionOptions = {
+  "force new connection": true,
+  reconnectionAttempts: "Infinity",
+  timeout: 10000,
+  transports: ["websocket"],
+};
+
+const socket = io(server, connectionOptions);
 
 const App = () => {
   const [userNo, setUserNo] = useState(0);
   const [roomJoined, setRoomJoined] = useState(false);
   const [user, setUser] = useState({});
   const [users, setUsers] = useState([]);
-
-  let socket;
-  const connectionOptions = {
-    "force new connection": true,
-    reconnectionAttempts: "Infinity",
-    timeout: 10000,
-    transports: ["websocket"],
-  };
 
   const uuid = () => {
     var S4 = () => {
@@ -42,8 +46,7 @@ const App = () => {
 
   useEffect(() => {
     if (roomJoined) {
-      const server = "http://localhost:5000";
-      socket = io(server, connectionOptions);
+      socket.emit("user-joined", user);
     }
   }, [roomJoined]);
 
@@ -51,7 +54,26 @@ const App = () => {
     <div className="home">
       <ToastContainer />
       {roomJoined ? (
-        <Room userNo={userNo} user={user} socket={socket} />
+        <>
+          <Sidebar users={users} user={user} socket={socket} />
+          {user.presenter ? (
+            <Room
+              userNo={userNo}
+              user={user}
+              socket={socket}
+              setUsers={setUsers}
+              setUserNo={setUserNo}
+            />
+          ) : (
+            <ClientRoom
+              userNo={userNo}
+              user={user}
+              socket={socket}
+              setUsers={setUsers}
+              setUserNo={setUserNo}
+            />
+          )}
+        </>
       ) : (
         <JoinCreateRoom
           uuid={uuid}

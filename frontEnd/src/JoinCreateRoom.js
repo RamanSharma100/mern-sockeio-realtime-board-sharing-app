@@ -2,11 +2,39 @@ import React, { useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { toast } from "react-toastify";
 
-const JoinCreateRoom = ({ uuid }) => {
+const JoinCreateRoom = ({ uuid, setUser, setRoomJoined }) => {
   const [roomId, setRoomId] = useState(uuid());
   const [name, setName] = useState("");
   const [joinName, setJoinName] = useState("");
   const [joinRoomId, setJoinRoomId] = useState("");
+
+  const handleCreateSubmit = (e) => {
+    e.preventDefault();
+    if (!name) return toast.dark("Please enter your name!");
+
+    setUser({
+      roomId,
+      userId: uuid(),
+      userName: name,
+      host: true,
+      presenter: true,
+    });
+    setRoomJoined(true);
+  };
+  const handleJoinSubmit = (e) => {
+    e.preventDefault();
+    if (!joinName) return toast.dark("Please enter your name!");
+
+    setUser({
+      roomId: joinRoomId,
+      userId: uuid(),
+      userName: joinName,
+      host: false,
+      presenter: false,
+    });
+    setRoomJoined(true);
+  };
+
   return (
     <div className="container">
       <div className="row">
@@ -19,7 +47,7 @@ const JoinCreateRoom = ({ uuid }) => {
       <div className="row mx-5 mt-5">
         <div className="col-md-5 p-5 border mx-auto">
           <h1 className="text-center text-primary mb-5">Create Room</h1>
-          <form>
+          <form onSubmit={handleCreateSubmit}>
             <div className="form-group my-2">
               <input
                 type="text"
@@ -72,7 +100,7 @@ const JoinCreateRoom = ({ uuid }) => {
         </div>
         <div className="col-md-5 p-5 border mx-auto">
           <h1 className="text-center text-primary mb-5">Join Room</h1>
-          <form>
+          <form onSubmit={handleJoinSubmit}>
             <div className="form-group my-2">
               <input
                 type="text"

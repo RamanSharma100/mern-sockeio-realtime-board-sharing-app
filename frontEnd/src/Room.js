@@ -1,13 +1,26 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { toast } from "react-toastify";
 import Canvas from "./Canvas";
 
-const Room = ({ userNo, socket }) => {
+const Room = ({ userNo, socket, setUsers, setUserNo }) => {
   const canvasRef = useRef(null);
   const ctx = useRef(null);
   const [color, setColor] = useState("#000000");
   const [elements, setElements] = useState([]);
   const [history, setHistory] = useState([]);
   const [tool, setTool] = useState("pencil");
+
+  useEffect(() => {
+    socket.on("message", (data) => {
+      toast.info(data.message);
+    });
+  }, []);
+  useEffect(() => {
+    socket.on("users", (data) => {
+      setUsers(data);
+      setUserNo(data.length);
+    });
+  }, []);
 
   const clearCanvas = () => {
     const canvas = canvasRef.current;
